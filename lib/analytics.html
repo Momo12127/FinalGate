@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="16x16" href="logo.png">
+  <title>FinalGate - Analytics</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="analytics.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    
+    * { font-family: 'Inter', sans-serif; }
+    
+    .sidebar { background: #1f2937; }
+
+    /* Enhanced Product Modal - Premium Design */
+#productModal {
+  display: none;
+  backdrop-filter: blur(8px);
+}
+
+#productModal.show {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  animation: modalPremiumSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes modalPremiumSlideIn {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.7) translateY(-50px); 
+    backdrop-filter: blur(0px);
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+    backdrop-filter: blur(8px);
+  }
+}
+
+#productModal .forgot-container {
+  max-width: 520px;
+  width: 90vw;
+  max-height: 90vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: containerGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes containerGlow {
+  0% { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05); }
+  100% { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15); }
+}
+
+#productModal .close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 20px;
+  font-weight: 300;
+}
+
+#productModal .close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+#productModal h2 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+#productDetailsContent {
+  padding: 32px 28px;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 8px 32px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.product-detail-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.product-detail-row:hover {
+  background: rgba(99, 102, 241, 0.03);
+  border-radius: 12px;
+  padding-left: 12px;
+  transform: translateX(4px);
+}
+
+.product-detail-row:last-child {
+  border-bottom: none;
+}
+
+.product-detail-label {
+  font-weight: 700;
+  color: #64748b;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-detail-value {
+  color: #0f172a;
+  text-align: right;
+  flex: 1;
+  font-weight: 500;
+  font-size: 15px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.5);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.product-detail-value:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: scale(1.02);
+}
+
+/* Status badges - Premium */
+.status-passed { 
+  color: #059669 !important; 
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.status-rejected { 
+  color: #dc2626 !important; 
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #fef2f2, #fecaca) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Button styling */
+#productModal button {
+  height: 48px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#productModal button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  #productModal .forgot-container {
+    margin: 20px;
+    border-radius: 20px;
+  }
+  
+  .product-detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .product-detail-value {
+    text-align: left !important;
+    width: 100%;
+  }
+}
+
+/* Scrollbar styling */
+#productDetailsContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+#productDetailsContent::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.5);
+  border-radius: 3px;
+}
+
+#productDetailsContent::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+  border-radius: 3px;
+}
+
+#productDetailsContent::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+}
+
+/* Perfect X Close Button */
+#productModal .close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 22px;
+  font-weight: 400;
+  color: #64748b;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  z-index: 10;
+}
+
+#productModal .close:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.15));
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #dc2626;
+  transform: scale(1.05) rotate(90deg);
+  box-shadow: 
+    0 8px 20px rgba(239, 68, 68, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+#productModal .close:active {
+  transform: scale(0.95) rotate(90deg);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.25));
+}
+
+#productModal .close::before,
+#productModal .close::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+#productModal .close::before {
+  transform: rotate(45deg);
+}
+
+#productModal .close::after {
+  transform: rotate(-45deg);
+}
+
+#productModal .close:hover::before {
+  width: 22px;
+  transform: rotate(45deg) scale(1.1);
+}
+
+#productModal .close:hover::after {
+  width: 22px;
+  transform: rotate(-45deg) scale(1.1);
+}
+
+/* Remove the original × text - use CSS lines instead */
+#productModal .close {
+  font-size: 1px; /* Hide text */
+}
+
+/* Focus state for accessibility */
+#productModal .close:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+    
+    .card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-2px); }
+    
+    .nav-link { transition: all 0.2s ease; }
+    .nav-link:hover { background: #374151; padding-left: 1.5rem; }
+    
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .gauge-circle {
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 1.5s ease;
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateX(400px);
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show { transform: translateX(0); }
+    
+    .table-new {
+      background: linear-gradient(90deg, #dcfce7 0%, #bbf7d0 100%);
+      animation: highlight 1s ease-out;
+    }
+    
+    @keyframes highlight {
+      0% { background: #dcfce7; }
+      100% { background: transparent; }
+    }
+    
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .rotate { animation: spin-slow 4s linear infinite; }
+    
+    .hidden { display: none !important; }
+  
+  /* ===== RESPONSIVE SIDEBAR ===== */
+  #sidebarOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 40;
+  }
+  #sidebarOverlay.open { display: block; }
+
+  .sidebar {
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  #hamburgerBtn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    color: #374151;
+    margin-right: 10px;
+  }
+  #hamburgerBtn:hover { background: #f3f4f6; }
+  #hamburgerBtn svg { width: 24px; height: 24px; display: block; }
+
+  @media (max-width: 1024px) {
+    header .w-72 { width: 160px !important; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      height: 100% !important;
+      z-index: 50;
+      transform: translateX(-100%);
+    }
+    .sidebar.sidebar-open { transform: translateX(0); }
+
+    #hamburgerBtn { display: flex !important; }
+
+    header .relative { display: none !important; }
+    header .flex.items-center.space-x-3 { gap: 0.5rem; }
+    .flex.h-screen > .flex-1 { width: 100%; }
+    main.p-6 { padding: 0.75rem !important; }
+    header { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+    .card.p-6 { padding: 0.875rem !important; }
+    h1.text-2xl { font-size: 1.1rem !important; }
+
+    .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4 {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 0.75rem !important;
+    }
+
+    #chatWindow {
+      width: calc(100vw - 2rem) !important;
+      right: 1rem !important;
+      left: auto !important;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar { width: 200px !important; }
+    main.p-6 { padding: 1rem !important; }
+    header .w-72 { width: 160px !important; }
+  }
+
+  </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+  <div id="sidebarOverlay"></div>
+
+
+  
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 bg-gray-900 text-white p-6 flex flex-col">
+      <div class="text-2xl font-bold text-white mb-10 py-4 border-b border-gray-800">
+        FinalGate
+      </div>
+
+       <!-- User Name Display -->
+      <div id="userNameDisplay" class="mb-6 p-3 bg-gray-800 rounded-lg text-sm">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+            <i class="fas fa-user text-white text-sm"></i>
+          </div>
+          <div>
+            <div id="userDisplayName" class="font-semibold text-white"></div>
+            <div id="userRole" class="text-xs text-gray-400"></div>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="flex-1 space-y-2">
+        <a href="login.html" class="nav-link flex items-center p-3 rounded-lg text-gray-300">
+          <i class="fas fa-tachometer-alt w-5 mr-3"></i>Dashboard
+        </a>
+        <a href="analytics.html" class="nav-link flex items-center p-3 rounded-lg text-white bg-blue-600">
+          <i class="fas fa-chart-line w-5 mr-3"></i>Analytics
+        </a>
+        
+        <a href="users.html" class="nav-link flex items-center p-3 rounded-lg text-gray-300">
+          <i class="fas fa-users w-5 mr-3"></i>Users
+        </a>
+        <a href="logs.html" class="nav-link flex items-center p-3 rounded-lg text-gray-300">
+          <i class="fas fa-industry w-5 mr-3"></i>Motor Control
+        </a>
+           <a href="quality.html" class="nav-link flex items-center p-3 rounded-lg text-gray-300">
+          <i class="fas fa-image w-5 mr-3"></i>
+          Manage Products
+
+        </a>
+
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Top Bar -->
+      <header class="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          
+          <button id="hamburgerBtn" aria-label="Toggle sidebar">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+            </button>
+          <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Analytics</h1>
+            <p class="text-gray-500 text-sm mt-1" id="userName"></p>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <div class="relative">
+              <input id="search" type="text" placeholder="Search products..." 
+                     class="w-72 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <button id="exportCsv" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+              Export CSV
+            </button>
+            <button id="logoutBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium hidden">
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="p-6 flex-1 overflow-y-auto space-y-6">
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="card p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600 mb-1">Passed</p>
+                <p class="text-3xl font-bold text-gray-900" id="passedCount">0</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-check text-green-600 text-xl"></i>
+              </div>
+            </div>
+          </div>
+          <div class="card p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600 mb-1">Rejected</p>
+                <p class="text-3xl font-bold text-gray-900" id="rejectedCount">0</p>
+              </div>
+              <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-times text-red-600 text-xl"></i>
+              </div>
+            </div>
+          </div>
+          <div class="card p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600 mb-1">Pass Rate</p>
+                <p class="text-3xl font-bold text-green-600" id="passRate">0%</p>
+              </div>
+              <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-chart-line text-emerald-600 text-xl"></i>
+              </div>
+            </div>
+          </div>
+          <div class="card p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600 mb-1">Machine</p>
+                <span class="status-badge bg-green-100 text-green-800" id="machineStatus">Offline</span>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-industry text-blue-600 text-xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gauge + CCTV + Controls -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Throughput</h3>
+            <div class="flex flex-col items-center">
+              <svg id="gaugeSvg" class="w-32 h-32 mb-4" viewBox="0 0 200 120"></svg>
+              <div class="text-2xl font-bold text-gray-900" id="gaugeValue">0%</div>
+              <p class="text-sm text-gray-600 mt-1">RPM: <span id="gaugeRpm">0</span></p>
+            </div>
+          </div>
+          
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Live CCTV</h3>
+            <canvas id="cctvCanvas" class="w-full h-48 bg-gray-200 rounded-lg"></canvas>
+          </div>
+          
+          <div class="card p-6 space-y-3">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Controls</h3>
+            <button id="simulateBtn" class="w-full py-2 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+              turn on the auto control
+            </button>
+            <button id="connectWsBtn" class="w-full py-2 px-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+              Emergency Stop 
+            </button>
+          </div>
+        </div>
+
+        <!-- Charts + Table -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Monthly Passed</h3>
+            <canvas id="lineChart" class="h-64"></canvas>
+          </div>
+          
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">P/R Ratio</h3>
+            <canvas id="barChart" class="h-48 mb-6"></canvas>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Fault Reasons</h4>
+            <canvas id="pieChart" class="h-32"></canvas>
+          </div>
+        </div>
+
+        <!-- Recent Checks -->
+        <div class="card overflow-hidden">
+          <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Recent Checks</h3>
+            <select id="filterSelect" class="px-3 py-2 border border-gray-300 rounded-lg">
+              <option value="all">All</option>
+              <option value="passed">Passed</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fault</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Time</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                </tr>
+              </thead>
+              <tbody id="productsTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Preview + Faults -->
+    
+          
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Top Faults</h3>
+            <ul id="faultList" class="space-y-3 text-sm"></ul>
+          </div>
+        </div>
+        <style>
+  /* زر الشات */
+  #chatButton {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 1000;
+    transition: background 0.3s;
+  }
+  #chatButton:hover { background-color: #357ABD; }
+
+  /* نافذة الشات */
+  #chatWindow {
+    position: fixed;
+    bottom: 80px;
+    right: 25px;
+    width: 360px;
+    max-height: 500px;
+    background: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: "Poppins", Arial, sans-serif;
+    z-index: 1000;
+  }
+
+  /* رأس الشات */
+  #chatHeader {
+    background: #4a90e2;
+    color: white;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: grab;
+    text-align: center;
+  }
+
+  /* محتوى الرسائل */
+  #chatBody {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* إدخال الرسائل */
+  #chatInputContainer {
+    display: flex;
+    border-top: 1px solid #ddd;
+  }
+
+  #chatInput {
+    flex: 1;
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 0 0 0 15px;
+  }
+
+  #chatSend {
+    background-color: #4a90e2;
+    border: none;
+    color: white;
+    padding: 12px 18px;
+    cursor: pointer;
+    border-radius: 0 0 15px 0;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+  #chatSend:hover { background-color: #357ABD; }
+
+  /* الرسائل */
+  .chatMessage {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+  }
+
+  .userMsg {
+    background: #4a90e2;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+
+  .aiMsg {
+    background: #fff;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+</style>
+
+<!-- HTML -->
+<button id="chatButton">💬 Chat AI</button>
+
+<div id="chatWindow">
+  <div id="chatHeader">Finalgate AI</div>
+  <div id="chatBody">
+    <div class="chatMessage aiMsg">Hi! I'm Finalgate AI. I can guide you on controlling your factory conveyor, uploading standard references, monitoring products, and managing user permissions.</div>
+  </div>
+  <div id="chatInputContainer">
+    <input type="text" id="chatInput" placeholder="Type your message..." />
+    <button id="chatSend">Send</button>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  
+  const chatButton = document.getElementById('chatButton');
+  const chatWindow = document.getElementById('chatWindow');
+  const chatSend = document.getElementById('chatSend');
+  const chatInput = document.getElementById('chatInput');
+  const chatBody = document.getElementById('chatBody');
+
+  chatButton.addEventListener('click', () => {
+    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  async function sendMessageToServer(message) {
+    try {
+      const response = await fetch("http://localhost:8000/chat-ai/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      const data = await response.json();
+      return data.reply || "Sorry, I couldn't generate a reply.";
+    } catch (err) {
+      console.error(err);
+      return "Error contacting Finalgate AI.";
+    }
+  }
+
+  chatSend.addEventListener('click', async () => {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chatMessage userMsg';
+    userMsg.textContent = msg;
+    chatBody.appendChild(userMsg);
+
+    chatInput.value = '';
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'chatMessage aiMsg';
+    aiMsg.textContent = "Thinking...";
+    chatBody.appendChild(aiMsg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    const reply = await sendMessageToServer(msg);
+    aiMsg.innerHTML  = marked.parse(reply);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  });
+
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') chatSend.click();
+  });
+</script>
+        
+      </main>
+
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" id="productModal">
+  <div class="forgot-container max-w-md mx-auto mt-20 p-8 bg-white rounded-2xl shadow-2xl">
+    <span class="close cursor-pointer text-2xl font-bold text-gray-500 hover:text-gray-900 float-right" id="closeProductModal">&times;</span>
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">Product Details</h2>
+    <div id="productDetailsContent" class="space-y-4 mb-6 text-sm">
+      <!-- Dynamic content will be loaded here -->
+    </div>
+    <div class="flex gap-3 pt-4 border-t">
+      <button id="closeProductBtn" class="flex-1 py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 font-medium">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+
+  <script type="module" src="analytics.js"></script>
+
+  <script>
+    (function() {
+      var btn = document.getElementById('hamburgerBtn');
+      var sidebar = document.querySelector('.sidebar');
+      var overlay = document.getElementById('sidebarOverlay');
+      if (!btn || !sidebar || !overlay) return;
+      btn.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-open');
+        overlay.classList.toggle('open');
+      });
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('sidebar-open');
+        overlay.classList.remove('open');
+      });
+      document.querySelectorAll('.nav-link').forEach(function(link) {
+        link.addEventListener('click', function() {
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove('sidebar-open');
+            overlay.classList.remove('open');
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

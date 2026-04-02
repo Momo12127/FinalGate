@@ -1,0 +1,591 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+
+/* ===== RESET & BASE ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(-45deg, #667eea, #764ba2, #89f7fe, #66a6ff);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  padding: 16px;
+}
+
+@keyframes gradientBG {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+  width: 800px;
+  max-width: 100%;
+  min-height: 520px;
+}
+
+/* ===== FORM CONTAINERS ===== */
+.form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+}
+
+.sign-in-container {
+  left: 0;
+  width: 50%;
+  z-index: 2;
+}
+
+.sign-up-container {
+  left: 0;
+  width: 50%;
+  opacity: 0;
+  z-index: 1;
+}
+
+.container.right-panel-active .sign-in-container {
+  transform: translateX(100%);
+}
+
+.container.right-panel-active .sign-up-container {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s;
+}
+
+@keyframes show {
+  0%, 49.99% { opacity: 0; z-index: 1; }
+  50%, 100%  { opacity: 1; z-index: 5; }
+}
+
+/* ===== FORM ===== */
+form {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px 36px;
+  height: 100%;
+  text-align: center;
+  position: relative;
+  gap: 10px;
+}
+
+h1 {
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-align: center;
+  color: #1a1a2e;
+}
+
+p {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #666;
+  margin: 4px 0 8px;
+}
+
+a {
+  color: #764ba2;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover { color: #667eea; }
+
+/* ===== INPUTS ===== */
+input {
+  background: #f0f0f7;
+  border: 2px solid transparent;
+  padding: 12px 16px;
+  width: 100%;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  transition: border-color 0.2s, background 0.2s;
+  outline: none;
+}
+
+input:focus {
+  border-color: #764ba2;
+  background: #fff;
+}
+
+/* ===== BUTTONS ===== */
+button {
+  border-radius: 25px;
+  border: 2px solid purple;
+  background: linear-gradient(135deg, #764ba2, #667eea);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  padding: 12px 40px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(118, 75, 162, 0.35);
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(118, 75, 162, 0.45);
+}
+
+button:active { transform: scale(0.97); }
+button:focus  { outline: none; }
+
+button.ghost {
+  background: transparent;
+  border-color: #fff;
+  box-shadow: none;
+  color: #fff;
+}
+button.ghost:hover {
+  background: rgba(255,255,255,0.15);
+  box-shadow: none;
+}
+
+#signinBtn { margin-top: 8px; }
+
+/* ===== OVERLAY ===== */
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.container.right-panel-active .overlay-container {
+  transform: translateX(-100%);
+}
+
+.overlay {
+  background: purple;
+  color: #fff;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.container.right-panel-active .overlay {
+  transform: translateX(50%);
+}
+
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay-panel h1 {
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.overlay-panel p {
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 24px;
+}
+
+.overlay-left  { transform: translateX(-20%); }
+.container.right-panel-active .overlay-left  { transform: translateX(0); }
+
+.overlay-right { right: 0; transform: translateX(0); }
+.container.right-panel-active .overlay-right { transform: translateX(20%); }
+
+/* ===== MODALS ===== */
+.forgot-container,
+.finalgate-container {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 85%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  z-index: 200;
+  border-radius: 16px;
+  padding: 36px 28px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.forgot-container input,
+.finalgate-container input { width: 100%; margin: 6px 0; }
+
+.forgot-container button,
+.finalgate-container button { margin-top: 12px; width: 100%; }
+
+.forgot-container .close,
+.finalgate-container .close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #aaa;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.forgot-container .close:hover,
+.finalgate-container .close:hover { color: #333; }
+
+/* ===== NOTIFICATION ===== */
+.notification {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #764ba2, #667eea);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  font-size: 15px;
+  font-weight: 600;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.notification.show { opacity: 1; }
+
+/* ===== MOBILE TABS (hidden on desktop) ===== */
+.mobile-tabs { display: none; }
+
+/* =============================================
+   MOBILE — up to 600px
+   ============================================= */
+@media (max-width: 600px) {
+  body {
+    padding: 0;
+    align-items: stretch;
+    min-height: 100dvh;
+    min-height: 100vh;
+  }
+
+  .container {
+    width: 100%;
+    min-height: 100dvh;
+    min-height: 100vh;
+    border-radius: 0;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+  }
+
+  /* Brand header */
+  .container::before {
+    content: 'FinalGate';
+    display: block;
+    background: purple;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 32px 20px 24px;
+    flex-shrink: 0;
+  }
+
+  /* Tab bar */
+  .mobile-tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: 2px solid #ede8f5;
+    flex-shrink: 0;
+  }
+
+  .mobile-tab {
+    flex: 1;
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #aaa;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    user-select: none;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .mobile-tab.active {
+    color: purple;
+    border-bottom-color: #764ba2;
+  }
+
+  /* Kill desktop animations */
+  .form-container,
+  .sign-in-container,
+  .sign-up-container {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    z-index: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sign-in-container { display: flex; flex-direction: column; }
+  .sign-up-container { display: none; }
+
+  .container.right-panel-active .sign-in-container { display: none; }
+  .container.right-panel-active .sign-up-container { display: flex; flex-direction: column; }
+
+  form {
+    padding: 28px 24px 40px;
+    height: auto;
+    flex: 1;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  h1 { font-size: 1.25rem; margin-bottom: 8px; }
+
+  input {
+    padding: 15px 16px;
+    font-size: 16px; /* prevent iOS zoom */
+    border-radius: 12px;
+  }
+
+  button {
+    padding: 15px;
+    font-size: 14px;
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 4px;
+  }
+
+  a { font-size: 13px; margin: 2px 0; }
+
+  /* Hide desktop overlay */
+  .overlay-container { display: none !important; }
+
+  /* Modals become bottom sheets */
+  .forgot-container,
+  .finalgate-container {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    transform: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 12px 24px 48px !important;
+    max-height: 88dvh;
+    max-height: 88vh;
+    overflow-y: auto;
+    z-index: 9000;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
+    align-items: stretch;
+  }
+
+  /* drag handle */
+  .forgot-container::before,
+  .finalgate-container::before {
+    content: '';
+    display: block;
+    width: 44px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 8px auto 20px;
+    flex-shrink: 0;
+  }
+
+  .notification {
+    top: auto;
+    bottom: 20px;
+    font-size: 14px;
+    padding: 12px 20px;
+    max-width: 88vw;
+    border-radius: 10px;
+  }
+}
+
+/* =============================================
+   SMALL TABLET — 601px to 768px
+   ============================================= */
+@media (min-width: 601px) and (max-width: 768px) {
+  body { padding: 32px 20px; }
+
+  .container {
+    width: 100%;
+    max-width: 500px;
+    min-height: auto;
+    border-radius: 20px;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container::before {
+    content: 'FinalGate';
+    display: block;
+    background: linear-gradient(135deg, #764ba2, #667eea);
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 24px 20px 18px;
+    border-radius: 20px 20px 0 0;
+    flex-shrink: 0;
+  }
+
+  .mobile-tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: 2px solid #ede8f5;
+  }
+
+  .mobile-tab {
+    flex: 1;
+    padding: 13px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #aaa;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    user-select: none;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .mobile-tab.active {
+    color: #764ba2;
+    border-bottom-color: #764ba2;
+  }
+
+  .form-container,
+  .sign-in-container,
+  .sign-up-container {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    z-index: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sign-in-container { display: flex; flex-direction: column; }
+  .sign-up-container { display: none; }
+
+  .container.right-panel-active .sign-in-container { display: none; }
+  .container.right-panel-active .sign-up-container { display: flex; flex-direction: column; }
+
+  form {
+    padding: 32px 36px 40px;
+    height: auto;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  button { width: 100%; border-radius: 12px; }
+
+  .overlay-container { display: none !important; }
+
+  .forgot-container,
+  .finalgate-container {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    transform: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 12px 32px 48px !important;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 9000;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
+  }
+
+  .forgot-container::before,
+  .finalgate-container::before {
+    content: '';
+    display: block;
+    width: 44px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 8px auto 20px;
+  }
+}
+
+/* =============================================
+   LARGE TABLET — 769px to 1024px
+   ============================================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    width: 700px;
+    min-height: 490px;
+  }
+  form { padding: 36px 32px; }
+}

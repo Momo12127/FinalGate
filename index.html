@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="icon" type="image/png" sizes="16x16" href="./lib/logo.png">
+
+    <title>FinalGate — Login</title>
+    <link rel="stylesheet" href="./login.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+<body>
+
+<div class="container" id="container">
+
+    <!-- Mobile tab bar (hidden on desktop via CSS) -->
+    <div class="mobile-tabs" id="mobileTabs">
+        <div class="mobile-tab active" id="tabSignIn" onclick="switchTab('signin')">Sign In</div>
+        <div class="mobile-tab"        id="tabSignUp" onclick="switchTab('signup')">Sign Up</div>
+    </div>
+
+    <!-- Sign Up Form -->
+    <div class="form-container sign-up-container">
+        <form id="signUpForm" action="#">
+            <h1>Create Account</h1>
+            <input type="text"     placeholder="Name"         required />
+            <input type="text"     placeholder="Factory Name" required />
+            <input type="text"     placeholder="Username"     required />
+            <input type="email"    placeholder="Email"        required />
+            <input type="password" placeholder="Password"     required />
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+
+    <!-- Sign In Form -->
+    <div class="form-container sign-in-container">
+        <form id="signInForm" action="#">
+            <h1>Sign In</h1>
+            <input type="email"    placeholder="Email"    required />
+            <input type="password" placeholder="Password" required />
+
+            <a href="#" id="forgotPassword">Forgot your password?</a>
+            <a href="#" class="finalgateAccount" id="finalgateAccount">Sign in with Finalgate account</a>
+
+            <button id="signinBtn" type="submit">Sign In</button>
+
+            <!-- Forgot Password modal / bottom-sheet -->
+            <div class="forgot-container" id="forgotContainer">
+                <span class="close">&times;</span>
+                <h2>Reset Password</h2>
+                <p>Enter your email to receive a password reset link.</p>
+                <input type="email" id="resetEmail" placeholder="Your Email" />
+                <button type="button" id="sendReset">Send Reset Link</button>
+            </div>
+
+            <!-- Finalgate Account modal / bottom-sheet -->
+            <div class="finalgate-container" id="finalgateContainer">
+                <span class="close">&times;</span>
+                <h2>Finalgate Account</h2>
+                <p>Enter your Finalgate credentials.</p>
+                <input type="email"    id="finalgateEmail"    placeholder="Finalgate Email" />
+                <input type="password" id="finalgatePassword" placeholder="Finalgate Password" />
+                <button type="button"  id="connectFinalgate">Connect Account</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Desktop Overlay Panels -->
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>FinalGate<br>where every product meets its perfect fate</h1>
+                <p>Simplify your products management with our user-friendly admin dashboard.</p>
+                <button class="ghost" id="signIn">Sign In</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>FinalGate<br>Sorting your final product</h1>
+                <p>Simplify your products management with our user-friendly admin dashboard.</p>
+                <button class="ghost" id="signUp">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+</div>
+
+<script src="./login.js"></script>
+
+<script>
+    /* Mobile tab switcher — keeps in sync with the desktop overlay logic */
+    function switchTab(tab) {
+        var container = document.getElementById('container');
+        var tabIn     = document.getElementById('tabSignIn');
+        var tabUp     = document.getElementById('tabSignUp');
+        if (tab === 'signup') {
+            container.classList.add('right-panel-active');
+            tabUp.classList.add('active');
+            tabIn.classList.remove('active');
+        } else {
+            container.classList.remove('right-panel-active');
+            tabIn.classList.add('active');
+            tabUp.classList.remove('active');
+        }
+    }
+
+    /* Sync mobile tabs when desktop overlay buttons are clicked */
+    var btnSignUp = document.getElementById('signUp');
+    var btnSignIn = document.getElementById('signIn');
+    if (btnSignUp) btnSignUp.addEventListener('click', function() { switchTab('signup'); });
+    if (btnSignIn) btnSignIn.addEventListener('click', function() { switchTab('signin'); });
+</script>
+
+</body>
+</html>

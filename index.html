@@ -2,18 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="icon" type="image/png" sizes="16x16" href="./lib/logo.png">
-
     <title>FinalGate — Login</title>
     <link rel="stylesheet" href="./login.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 </head>
 <body>
 
 <div class="container" id="container">
+
+    <!-- Mobile-only header with logo -->
+    <div class="mobile-header" id="mobileHeader">
+        <img src="./lib/logo.png" alt="FinalGate Logo" />
+    </div>
 
     <!-- Mobile tab bar (hidden on desktop via CSS) -->
     <div class="mobile-tabs" id="mobileTabs">
@@ -24,12 +26,16 @@
     <!-- Sign Up Form -->
     <div class="form-container sign-up-container">
         <form id="signUpForm" action="#">
+            <!-- Desktop logo -->
+            <div class="logo-wrap">
+                <img src="./lib/logo.png" alt="FinalGate Logo" />
+            </div>
             <h1>Create Account</h1>
-            <input type="text"     placeholder="Name"         required />
-            <input type="text"     placeholder="Factory Name" required />
-            <input type="text"     placeholder="Username"     required />
-            <input type="email"    placeholder="Email"        required />
-            <input type="password" placeholder="Password"     required />
+            <input type="text"     placeholder="Full Name"     required />
+            <input type="text"     placeholder="Factory Name"  required />
+            <input type="text"     placeholder="Username"      required />
+            <input type="email"    placeholder="Email"         required />
+            <input type="password" placeholder="Password"      required />
             <button type="submit">Sign Up</button>
         </form>
     </div>

@@ -1,9 +1,9 @@
 
 const { createClient } = supabase;
 // تهيئة Supabase
-const supabaseUrl = 'https://soxwifnrwqkbfpvzdfkl.supabase.co';  // استبدل بـ URL مشروعك من Supabase
+const supabaseUrl = 'https://soxwifnrwqkbfpvzdfkl.supabase.co';  
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNveHdpZm5yd3FrYmZwdnpkZmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0NTkyNzMsImV4cCI6MjA4MDAzNTI3M30.44Jzm3XP35KPMJlE7YCZ9Yp95Y0bPJX2cCIJ2ogmYxw';  // استبدل بـ anon key من Supabase
-const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);  // أنشئ العميل (سميته supabaseClient لتجنب الالتباس)
+const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);  
 
 
 const signUpForm = document.getElementById('signUpForm');
@@ -31,7 +31,7 @@ signInButton.addEventListener('click', () => {
 signUpForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const name = signUpForm.querySelector('input[placeholder="Name"]').value.trim();
+    const name = signUpForm.querySelector('input[placeholder="Full Name"]').value.trim();
     const factoryName = signUpForm.querySelector('input[placeholder="Factory Name"]').value.trim();
     const username = signUpForm.querySelector('input[placeholder="Username"]').value.trim();
     const email = signUpForm.querySelector('input[type="email"]').value.trim();

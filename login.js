@@ -59,7 +59,7 @@ signUpForm.addEventListener('submit', async (e) => {
         }
 
         console.log('Sign up data:', data);
-        showNotification('Signup successful! Check your email to confirm your account.');
+        showNotification('Signup successful!Welcome to FinalGate.');
         signUpForm.reset();
         container.classList.remove("right-panel-active");
 

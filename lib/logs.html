@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,6 +150,15 @@
     }
   }
 
+  /* ===== CAMERA SECTION ===== */
+  #camera-feed-wrapper video {
+    border-radius: 0.75rem;
+  }
+  #btn-start-camera:disabled, #btn-stop-camera:disabled, #btn-snapshot:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
   @media (min-width: 769px) and (max-width: 1024px) {
     .sidebar { width: 200px !important; }
     main.p-6 { padding: 1rem !important; }
@@ -270,6 +280,168 @@
                   <p class="text-3xl font-bold text-gray-900" id="stat-runtime">00:00:00</p>
                 </div>
               </div>
+            </div>
+
+            <!-- Camera Card -->
+            <div class="card p-6" id="camera-card">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="text-lg font-semibold text-gray-900">
+                  <i class="fas fa-video mr-2 text-blue-500"></i>Live Camera
+                </h3>
+                <div class="flex items-center gap-2">
+                  <span id="yolo-status-badge" class="status-badge bg-gray-100 text-gray-500 text-xs" style="display:none;">
+                    <i class="fas fa-brain mr-1"></i>YOLO ACTIVE
+                  </span>
+                  <span id="camera-status-badge" class="status-badge bg-gray-100 text-gray-600">OFFLINE</span>
+                </div>
+              </div>
+
+              <!-- Camera selector + controls row -->
+              <div class="flex flex-col lg:flex-row gap-6 mb-6">
+  <!-- Camera Selection -->
+  <div class="flex-1">
+    <label class="block text-xs font-semibold text-gray-500 mb-2 tracking-widest">
+      CAMERA SOURCE
+    </label>
+    <div class="relative">
+      <select id="camera-select"
+        class="w-full bg-white border border-gray-300 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow">
+        <option value="">— Scanning cameras… —</option>
+      </select>
+      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-gray-400">
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex items-end gap-3">
+    <!-- Start Button -->
+    <button id="btn-start-camera"
+      class="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium flex items-center justify-center">
+      <i class="fas fa-play text-base transition-transform group-active:scale-110"></i>
+      <span>Start Camera</span>
+    </button>
+
+    <!-- Stop Button -->
+    <button id="btn-stop-camera"
+      class="flex-1 py-3 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium flex items-center justify-center"
+      disabled>
+      <i class="fas fa-stop text-base"></i>
+      <span>Stop</span>
+    </button>
+
+    <!-- Snapshot Button -->
+    <button id="btn-snapshot"
+      title="Take Snapshot"
+      class="group px-5 py-3.5 bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800 active:bg-gray-50 rounded-2xl flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow focus:ring-4 focus:ring-gray-200 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled>
+      <i class="fas fa-camera text-xl transition-transform group-active:scale-110"></i>
+    </button>
+  </div>
+</div>
+
+              <!-- YOLO / API Config (collapsible) -->
+              <details class="mb-4 bg-gray-50 rounded-xl border border-gray-200" id="yolo-config-panel">
+                <summary class="px-4 py-3 text-sm font-semibold text-gray-700 cursor-pointer flex items-center gap-2 select-none">
+                  <i class="fas fa-sliders-h text-purple-500"></i>
+                  YOLO Detection & API Config
+                  <i class="fas fa-chevron-down ml-auto text-gray-400 text-xs transition-transform" id="yolo-chevron"></i>
+                </summary>
+                <div class="px-4 pb-4 pt-2 grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Target API URL</label>
+                    <input id="cfg-api-url" type="text" readonly value="https://finalgate-backend-production.up.railway.app/quick-analyze/"
+                      class="w-full p-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Min Confidence</label>
+                    <input id="cfg-confidence" type="number" value="0.25" min="0" max="1" step="0.05"
+                      class="w-full p-2 border border-gray-300 rounded-lg text-xs">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Frame Skip (analyze every N frames)</label>
+                    <input id="cfg-frame-skip" type="number" value="3" min="1" max="30"
+                      class="w-full p-2 border border-gray-300 rounded-lg text-xs">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Cooldown between sends (s)</label>
+                    <input id="cfg-cooldown" type="number" value="1.0" min="0.1" step="0.1"
+                      class="w-full p-2 border border-gray-300 rounded-lg text-xs">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Exit Frames (miss before reset)</label>
+                    <input id="cfg-exit-frames" type="number" value="15" min="1" max="60"
+                      class="w-full p-2 border border-gray-300 rounded-lg text-xs">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Edge Margin (px)</label>
+                    <input id="cfg-margin" type="number" value="5" min="0" max="50"
+                      class="w-full p-2 border border-gray-300 rounded-lg text-xs">
+                  </div>
+                  <div class="col-span-2 flex items-center gap-3 pt-1">
+                    <label class="flex items-center gap-2 text-xs font-medium text-gray-700 cursor-pointer">
+                      <input type="checkbox" id="cfg-yolo-enable" class="rounded" checked>
+                      Enable YOLO object detection
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-medium text-gray-700 cursor-pointer">
+                      <input type="checkbox" id="cfg-api-enable" class="rounded" checked>
+                      Send frames to API
+                    </label>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Video feed with canvas overlay -->
+              <div id="camera-feed-wrapper"
+                class="relative bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center"
+                style="min-height:220px;">
+                <div id="camera-placeholder" class="flex flex-col items-center justify-center text-gray-500 py-10">
+                  <i class="fas fa-video-slash text-4xl mb-3 opacity-40"></i>
+                  <p class="text-sm">No camera active</p>
+                  <p class="text-xs text-gray-600 mt-1">Select a camera and press Start</p>
+                </div>
+                <video id="camera-video" autoplay playsinline muted
+                  class="w-full rounded-xl" style="display:none; max-height:320px; object-fit:cover;"></video>
+                <!-- Canvas overlay for YOLO bounding boxes -->
+                <canvas id="yolo-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:0.75rem; pointer-events:none;"></canvas>
+                <!-- Live badge -->
+                <div id="camera-live-dot"
+                  class="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full"
+                  style="display:none!important;">
+                  <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse inline-block"></span> LIVE
+                </div>
+                <!-- Object detected badge -->
+                <div id="object-detected-badge"
+                  class="absolute top-3 right-3 items-center gap-1.5 bg-yellow-400/90 text-gray-900 text-xs font-semibold px-2.5 py-1 rounded-full"
+                  style="display:none;">
+                  <i class="fas fa-cube mr-1"></i>OBJECT DETECTED
+                </div>
+              </div>
+
+              <!-- Stats row -->
+              <div class="grid grid-cols-4 gap-3 mt-4 text-center">
+                <div class="bg-gray-50 rounded-lg p-3">
+                  <p class="text-xs text-green-600 font-medium mb-0.5">✅ Accepted</p>
+                  <p class="text-lg font-bold text-green-700" id="stat-accepted">0</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                  <p class="text-xs text-red-600 font-medium mb-0.5">❌ Rejected</p>
+                  <p class="text-lg font-bold text-red-700" id="stat-rejected">0</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                  <p class="text-xs text-gray-500 mb-0.5">API Sends</p>
+                  <p class="text-lg font-bold text-blue-600" id="stat-api-sends">0</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                  <p class="text-xs text-gray-500 mb-0.5">Queue Size</p>
+                  <p class="text-lg font-bold text-purple-600" id="stat-queue-size">0/5</p>
+                </div>
+              </div>
+
+              <!-- Hidden canvases -->
+              <canvas id="snapshot-canvas" style="display:none;"></canvas>
+              <canvas id="capture-canvas" style="display:none;"></canvas>
             </div>
 
             <!-- DC Motor Controls -->
@@ -553,6 +725,471 @@
   </div>
 
   <script src="logs.js" type="module"></script>
+
+  <!-- ===== CAMERA + YOLO DETECTION + API SCRIPT ===== -->
+  <script>
+  (function () {
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CONFIG  (mirrors Python script defaults, editable via the config panel)
+    // ─────────────────────────────────────────────────────────────────────────
+    const CFG = {
+      get apiUrl()       { return document.getElementById('cfg-api-url')?.value      || 'http://localhost:8000/quick-analyze/'; },
+      get minConf()      { return parseFloat(document.getElementById('cfg-confidence')?.value) || 0.25; },
+      get frameSkip()    { return parseInt(document.getElementById('cfg-frame-skip')?.value)   || 3; },
+      get cooldown()     { return parseFloat(document.getElementById('cfg-cooldown')?.value)   || 1.0; },
+      get exitFrames()   { return parseInt(document.getElementById('cfg-exit-frames')?.value)  || 15; },
+      get margin()       { return parseInt(document.getElementById('cfg-margin')?.value)       || 5; },
+      get yoloEnabled()  { return document.getElementById('cfg-yolo-enable')?.checked ?? true; },
+      get apiEnabled()   { return document.getElementById('cfg-api-enable')?.checked  ?? true; },
+      QUEUE_MAXSIZE: 5
+    };
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STATE  (mirrors Python state variables)
+    // ─────────────────────────────────────────────────────────────────────────
+    let activeStream      = null;
+    let animFrameId       = null;
+    let frameCount        = 0;
+    let objectActive      = false;
+    let imageTaken        = false;
+    let missingCounter    = 0;
+    let lastCaptureTime   = 0;
+
+    // Stats
+    let acceptedCount     = 0;
+    let rejectedCount     = 0;
+    let apiSends          = 0;
+    let apiQueue          = [];          // mirrors api_queue
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DOM REFS
+    // ─────────────────────────────────────────────────────────────────────────
+    const cameraSelect     = document.getElementById('camera-select');
+    const btnStart         = document.getElementById('btn-start-camera');
+    const btnStop          = document.getElementById('btn-stop-camera');
+    const btnSnapshot      = document.getElementById('btn-snapshot');
+    const video            = document.getElementById('camera-video');
+    const placeholder      = document.getElementById('camera-placeholder');
+    const liveDot          = document.getElementById('camera-live-dot');
+    const statusBadge      = document.getElementById('camera-status-badge');
+    const yoloBadge        = document.getElementById('yolo-status-badge');
+    const objBadge         = document.getElementById('object-detected-badge');
+    const overlayCanvas    = document.getElementById('yolo-overlay');
+    const snapshotCanvas   = document.getElementById('snapshot-canvas');
+    const captureCanvas    = document.getElementById('capture-canvas');
+    const overlayCtx       = overlayCanvas.getContext('2d');
+
+    const elAccepted       = document.getElementById('stat-accepted');
+    const elRejected       = document.getElementById('stat-rejected');
+    const elApiSends       = document.getElementById('stat-api-sends');
+    const elQueue          = document.getElementById('stat-queue-size');
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CAMERA ENUMERATE  (mirrors camera_loop cap.open)
+    // ─────────────────────────────────────────────────────────────────────────
+    async function populateCameras() {
+      try {
+        const tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        tempStream.getTracks().forEach(t => t.stop());
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cams = devices.filter(d => d.kind === 'videoinput');
+        cameraSelect.innerHTML = '';
+        if (!cams.length) {
+          cameraSelect.innerHTML = '<option value="">No cameras found</option>';
+          btnStart.disabled = true; return;
+        }
+        cams.forEach((d, i) => {
+          const o = document.createElement('option');
+          o.value = d.deviceId;
+          o.textContent = d.label || `Camera ${i + 1}`;
+          cameraSelect.appendChild(o);
+        });
+        btnStart.disabled = false;
+        addCameraLog(`📷 Found ${cams.length} camera(s)`, 'success');
+      } catch (e) {
+        cameraSelect.innerHTML = '<option value="">Permission denied</option>';
+        btnStart.disabled = true;
+        addCameraLog('Camera permission denied', 'error');
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // START CAMERA
+    // ─────────────────────────────────────────────────────────────────────────
+    async function startCamera() {
+      const deviceId = cameraSelect.value;
+      if (!deviceId) return;
+      stopCamera();
+
+      try {
+        activeStream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: { exact: deviceId }, width: { ideal: 800 }, height: { ideal: 600 } }
+        });
+        video.srcObject = activeStream;
+        video.style.display = 'block';
+        placeholder.style.display = 'none';
+        overlayCanvas.style.display = 'block';
+        liveDot.style.cssText = 'display:flex!important;';
+        if (CFG.yoloEnabled) { yoloBadge.style.display = ''; }
+
+        statusBadge.textContent = 'LIVE';
+        statusBadge.className = 'status-badge bg-green-100 text-green-800';
+
+        btnStart.disabled = true;
+        btnStop.disabled = false;
+        btnSnapshot.disabled = false;
+        cameraSelect.disabled = true;
+
+        // Reset state  (mirrors camera_loop reset)
+        frameCount = objectActive = imageTaken = missingCounter = 0;
+        lastCaptureTime = 0;
+        acceptedCount = rejectedCount = apiSends = 0;
+        apiQueue = [];
+        updateStats();
+
+        addCameraLog(`🚀 Camera started: ${cameraSelect.options[cameraSelect.selectedIndex]?.text}`, 'success');
+        addCameraLog(`📡 Target API: ${CFG.apiUrl}`, 'neutral');
+
+        video.onloadedmetadata = () => {
+          overlayCanvas.width  = video.videoWidth;
+          overlayCanvas.height = video.videoHeight;
+          startDetectionLoop();
+        };
+      } catch (e) {
+        addCameraLog(`❌ Camera error: ${e.message}`, 'error');
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STOP CAMERA
+    // ─────────────────────────────────────────────────────────────────────────
+    function stopCamera() {
+      if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+      if (activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
+      video.srcObject = null;
+      video.style.display = 'none';
+      placeholder.style.display = '';
+      overlayCanvas.style.display = 'none';
+      liveDot.style.cssText = 'display:none!important;';
+      objBadge.style.display = 'none';
+      yoloBadge.style.display = 'none';
+      statusBadge.textContent = 'OFFLINE';
+      statusBadge.className = 'status-badge bg-gray-100 text-gray-600';
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+      btnSnapshot.disabled = true;
+      cameraSelect.disabled = false;
+      overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DETECTION LOOP  (mirrors camera_loop while True + YOLO logic)
+    // Uses canvas-based motion detection as browser substitute for YOLO
+    // – sends frames to backend API exactly like the Python script does
+    // ─────────────────────────────────────────────────────────────────────────
+    let prevImageData = null;
+
+    // Small downscale canvas for fast pixel diffing
+    const diffCanvas  = document.createElement('canvas');
+    const diffCtx     = diffCanvas.getContext('2d');
+    const DIFF_W = 160, DIFF_H = 120; // work at low-res for speed
+    diffCanvas.width  = DIFF_W;
+    diffCanvas.height = DIFF_H;
+
+    function startDetectionLoop() {
+      const detect = () => {
+        if (!activeStream) return;
+        animFrameId = requestAnimationFrame(detect);
+
+        frameCount++;
+        updateStats();
+
+        // mirrors: if frame_count % FRAME_SKIP != 0: continue
+        if (frameCount % CFG.frameSkip !== 0) return;
+        if (!CFG.yoloEnabled) { prevImageData = null; return; }
+        if (video.readyState < 2) return; // video not ready yet
+
+        // ── 1. Draw downscaled frame for fast diffing ─────────────────────
+        diffCtx.drawImage(video, 0, 0, DIFF_W, DIFF_H);
+        const currentData = diffCtx.getImageData(0, 0, DIFF_W, DIFF_H);
+
+        let objectDetected = false;
+        let box = null;
+
+        if (prevImageData) {
+          const prev = prevImageData.data;
+          const curr = currentData.data;
+
+          let minX = DIFF_W, minY = DIFF_H, maxX = 0, maxY = 0;
+          let changedPixels = 0;
+
+          // Per-pixel diff — no stepping, working at 160×120 is already fast
+          for (let py = 0; py < DIFF_H; py++) {
+            for (let px = 0; px < DIFF_W; px++) {
+              const i = (py * DIFF_W + px) * 4;
+              const dr = Math.abs(curr[i]   - prev[i]);
+              const dg = Math.abs(curr[i+1] - prev[i+1]);
+              const db = Math.abs(curr[i+2] - prev[i+2]);
+              // threshold=20 → sensitive enough for slow-moving objects
+              if (dr + dg + db > 20) {
+                changedPixels++;
+                if (px < minX) minX = px;
+                if (py < minY) minY = py;
+                if (px > maxX) maxX = px;
+                if (py > maxY) maxY = py;
+              }
+            }
+          }
+
+          // Need at least 0.3% of pixels changed (≈57 pixels at 160×120)
+          // This is very permissive — catches hand, object, person, anything
+          const minPixels = Math.max(10, (DIFF_W * DIFF_H) * 0.003);
+
+          if (changedPixels >= minPixels && maxX > minX && maxY > minY) {
+            // Scale bounding box back to full video resolution
+            const vw = video.videoWidth  || 640;
+            const vh = video.videoHeight || 480;
+            const sx = vw / DIFF_W;
+            const sy = vh / DIFF_H;
+
+            const bx1 = Math.max(0,  (minX - 2) * sx);
+            const by1 = Math.max(0,  (minY - 2) * sy);
+            const bx2 = Math.min(vw, (maxX + 2) * sx);
+            const by2 = Math.min(vh, (maxY + 2) * sy);
+
+            // conf = ratio of changed pixels, clamped
+            const conf = Math.min(0.99, changedPixels / (DIFF_W * DIFF_H)).toFixed(2);
+            objectDetected = true;
+            box = { x1: bx1, y1: by1, x2: bx2, y2: by2, conf };
+          }
+        }
+
+        // Always update previous frame
+        prevImageData = currentData;
+
+        // ── 2. Draw bounding box overlay on video ─────────────────────────
+        const vw = video.videoWidth  || 640;
+        const vh = video.videoHeight || 480;
+        overlayCanvas.width  = vw;
+        overlayCanvas.height = vh;
+        overlayCtx.clearRect(0, 0, vw, vh);
+
+        if (objectDetected && box) {
+          const rx = box.x1, ry = box.y1;
+          const rw = box.x2 - box.x1;
+          const rh = box.y2 - box.y1;
+
+          // Outer glow
+          overlayCtx.shadowColor   = '#facc15';
+          overlayCtx.shadowBlur    = 8;
+          overlayCtx.strokeStyle   = '#facc15';
+          overlayCtx.lineWidth     = 2.5;
+          overlayCtx.strokeRect(rx, ry, rw, rh);
+          overlayCtx.shadowBlur    = 0;
+
+          // Label background
+          const label = `Object  conf:${box.conf}`;
+          overlayCtx.font = 'bold 13px Inter, sans-serif';
+          const tw = overlayCtx.measureText(label).width + 12;
+          overlayCtx.fillStyle = '#facc15dd';
+          overlayCtx.fillRect(rx, Math.max(0, ry - 22), tw, 22);
+          overlayCtx.fillStyle = '#111';
+          overlayCtx.fillText(label, rx + 6, Math.max(14, ry - 6));
+        }
+
+        // ── 3. State machine (mirrors Python object_active/missing_counter) ─
+        if (objectDetected) {
+          missingCounter = 0;
+          objBadge.style.display = 'flex';
+
+          if (!objectActive) {
+            objectActive = true;
+            imageTaken   = false;
+            addCameraLog('🎯 Object entered frame', 'success');
+          }
+
+          // mirrors: current_time - last_capture_time > COOLDOWN
+          const now = Date.now() / 1000;
+          if (!imageTaken && (now - lastCaptureTime) > CFG.cooldown) {
+            lastCaptureTime = now;
+            imageTaken = true;
+
+            // Capture at full resolution for API
+            if (CFG.apiEnabled) {
+              if (apiQueue.length < CFG.QUEUE_MAXSIZE) {
+                // Draw full-res frame to captureCanvas then blob it
+                captureCanvas.width  = vw;
+                captureCanvas.height = vh;
+                captureCanvas.getContext('2d').drawImage(video, 0, 0, vw, vh);
+                captureCanvas.toBlob(blob => {
+                  if (blob) {
+                    apiQueue.push(blob);
+                    updateStats();
+                    processApiQueue();
+                    addCameraLog(`📸 Frame queued for API (queue: ${apiQueue.length})`, 'neutral');
+                  }
+                }, 'image/jpeg', 0.85);
+              } else {
+                addCameraLog('⚠️ Queue full, skipping frame', 'error');
+              }
+            }
+          }
+
+        } else {
+          missingCounter++;
+          // mirrors: if missing_counter >= EXIT_FRAMES: reset
+          if (missingCounter >= CFG.exitFrames) {
+            if (objectActive) {
+              objectActive = false;
+              imageTaken   = false;
+              objBadge.style.display = 'none';
+              addCameraLog('🔲 Object left frame', 'neutral');
+            }
+          }
+        }
+      };
+
+      detect();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // API WORKER  (mirrors api_worker thread + send_to_api_memory)
+    // ─────────────────────────────────────────────────────────────────────────
+    let apiWorkerRunning = false;
+
+    async function processApiQueue() {
+      if (apiWorkerRunning) return;
+      apiWorkerRunning = true;
+
+      while (apiQueue.length > 0) {
+        const blob = apiQueue.shift();
+        updateStats();
+        await sendToApi(blob);
+      }
+
+      apiWorkerRunning = false;
+    }
+
+    async function sendToApi(blob) {
+      try {
+        const formData = new FormData();
+        formData.append('product_image', blob, 'capture.jpg');
+
+        addCameraLog(`📡 Sending frame to API…`, 'neutral');
+
+        const res = await fetch(CFG.apiUrl, {
+          method: 'POST',
+          body: formData,
+          signal: AbortSignal.timeout(8000)
+        });
+
+        apiSends++;
+        addCameraLog(`📡 API → ${res.status} ${res.statusText}`, res.ok ? 'success' : 'error');
+
+        if (res.ok) {
+          try {
+            const data = await res.json();
+            // Support various response shapes: decision, result, status, label
+            const raw = (data?.decision || data?.result || data?.status || data?.label || '').toString().toLowerCase().trim();
+
+            if (raw.includes('accept') || raw === 'pass' || raw === 'ok' || raw === 'good' || raw === 'approved') {
+              acceptedCount++;
+              addCameraLog(`✅ Result: Accepted`, 'success');
+            } else if (raw.includes('reject') || raw === 'fail' || raw === 'bad' || raw === 'defect' || raw === 'ng') {
+              rejectedCount++;
+              addCameraLog(`❌ Result: Rejected`, 'error');
+            } else if (raw) {
+              // Unknown result — show it raw, count as rejected to be safe
+              addCameraLog(`🔍 Result: ${data.decision || data.result || data.status || data.label}`, 'neutral');
+            }
+          } catch(_) {}
+        }
+      } catch (e) {
+        if (e.name === 'TimeoutError') {
+          addCameraLog('⏰ API Timeout', 'error');
+        } else {
+          addCameraLog(`❌ API Error: ${e.message}`, 'error');
+        }
+      }
+      updateStats();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // SNAPSHOT  (same as before)
+    // ─────────────────────────────────────────────────────────────────────────
+    function takeSnapshot() {
+      if (!activeStream) return;
+      snapshotCanvas.width  = video.videoWidth;
+      snapshotCanvas.height = video.videoHeight;
+      snapshotCanvas.getContext('2d').drawImage(video, 0, 0);
+      const link = document.createElement('a');
+      link.download = 'snapshot_' + new Date().toISOString().replace(/[:.]/g, '-') + '.png';
+      link.href = snapshotCanvas.toDataURL('image/png');
+      link.click();
+      addCameraLog('📷 Snapshot saved', 'success');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STATS UPDATE
+    // ─────────────────────────────────────────────────────────────────────────
+    function updateStats() {
+      if (elAccepted)  elAccepted.textContent  = acceptedCount;
+      if (elRejected)  elRejected.textContent  = rejectedCount;
+      if (elApiSends)  elApiSends.textContent  = apiSends;
+      if (elQueue)     elQueue.textContent     = `${apiQueue.length}/${CFG.QUEUE_MAXSIZE}`;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // OPERATION LOG HELPER
+    // ─────────────────────────────────────────────────────────────────────────
+    function addCameraLog(message, type) {
+      const logBody = document.getElementById('log-table-body');
+      if (!logBody) return;
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const colorMap = { success: 'bg-green-500', error: 'bg-red-500', neutral: 'bg-blue-400' };
+      const dot = colorMap[type] || 'bg-gray-400';
+      const div = document.createElement('div');
+      div.className = 'flex items-center p-3 bg-gray-50 rounded-lg';
+      div.innerHTML = `
+        <div class="w-2 h-2 ${dot} rounded-full mr-3 flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 truncate">${message}</p>
+          <p class="text-xs text-gray-500">${time}</p>
+        </div>`;
+      logBody.insertBefore(div, logBody.firstChild);
+      // keep max 80 logs
+      while (logBody.children.length > 80) logBody.removeChild(logBody.lastChild);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CONFIG PANEL  chevron toggle
+    // ─────────────────────────────────────────────────────────────────────────
+    document.getElementById('yolo-config-panel')?.addEventListener('toggle', function() {
+      const chev = document.getElementById('yolo-chevron');
+      if (chev) chev.style.transform = this.open ? 'rotate(180deg)' : '';
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // EVENT LISTENERS
+    // ─────────────────────────────────────────────────────────────────────────
+    btnStart.addEventListener('click', startCamera);
+    btnStop.addEventListener('click', () => { stopCamera(); addCameraLog('⏹ Camera stopped', 'neutral'); });
+    btnSnapshot.addEventListener('click', takeSnapshot);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────────────────────────────────────
+    if (navigator.mediaDevices?.enumerateDevices) {
+      populateCameras();
+      navigator.mediaDevices.addEventListener('devicechange', populateCameras);
+    } else {
+      cameraSelect.innerHTML = '<option value="">Camera API not supported</option>';
+      btnStart.disabled = true;
+    }
+
+  })();
+  </script>
 
   <script>
     (function() {
